@@ -1,4 +1,4 @@
-package com.morgan.scraper.traverser;
+package com.morgan.scraper.extractor.traverser;
 
 import static org.junit.Assert.assertEquals;
 
@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,19 +19,20 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class JsoupTraverserTest {
 
   private static JsoupTraverser jsoupTraverser;
+  private static Document document;
 
   @Before
   public void init() {
     final String html =
         "<body>"
-            + "<div class='children' href='../testoutside.html'></div>"
+            + "<div class='children' href='../testoutside.html' id='outside'></div>"
             + "<div class='container'>"
-            + "<div class='children' href='../test1.html'></div>"
-            + "<div class='children' href='../test2.html'></div>"
+            + "<div class='children' href='../test1.html' id='1'></div>"
+            + "<div class='children' href='../test2.html' id='2'></div>"
             + "</div>"
             + "</body>";
 
-    final Document document = Jsoup.parse(html);
+    document = Jsoup.parse(html);
     jsoupTraverser = new JsoupTraverser(document);
   }
 
@@ -38,10 +40,9 @@ public class JsoupTraverserTest {
   public void testMatchingQueryWithContainerReturnsCorrectElements() {
     List<String> cssQueries = Arrays.asList(".container", ".children");
 
-    List<DOMElement> elements = jsoupTraverser.getElements(cssQueries);
+    Elements elements = jsoupTraverser.getElements(cssQueries);
 
-    List<DOMElement> expectedElements =
-        Arrays.asList(new DOMElement("../test1.html"), new DOMElement("../test2.html"));
+    Elements expectedElements = document.select("#1,#2");
     assertEquals(expectedElements, elements);
   }
 
@@ -49,13 +50,9 @@ public class JsoupTraverserTest {
   public void testMatchingQueryWithoutContainerReturnsCorrectElements() {
     List<String> cssQueries = Collections.singletonList(".children");
 
-    List<DOMElement> elements = jsoupTraverser.getElements(cssQueries);
+    Elements elements = jsoupTraverser.getElements(cssQueries);
 
-    List<DOMElement> expectedElements =
-        Arrays.asList(
-            new DOMElement("../testoutside.html"),
-            new DOMElement("../test1.html"),
-            new DOMElement("../test2.html"));
+    Elements expectedElements = document.select("#outside,#1,#2");
     assertEquals(expectedElements, elements);
   }
 
@@ -63,7 +60,7 @@ public class JsoupTraverserTest {
   public void testNonMatchingQueryReturnsEmptyList() {
     List<String> cssQueries = Arrays.asList(".container", ".something-missing");
 
-    List<DOMElement> elements = jsoupTraverser.getElements(cssQueries);
+    Elements elements = jsoupTraverser.getElements(cssQueries);
 
     assertEquals(0, elements.size());
   }
