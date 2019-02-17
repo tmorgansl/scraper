@@ -22,7 +22,7 @@ public class JsoupRootPageExtractor extends Extractor implements RootPageExtract
   static final List<String> rootTraversalPath = Arrays.asList(".productNameAndPromotions", "a");
 
   @Autowired
-  JsoupRootPageExtractor(Traverser traverser, @Value("${sainsburys.baseURL}") String baseURL) {
+  JsoupRootPageExtractor(Traverser traverser, @Value("${sainsburys.url}") String baseURL) {
     super(traverser);
     try {
       this.url = new URL(baseURL);

@@ -5,7 +5,7 @@ public class ExtractionException extends RuntimeException {
     super(message, cause);
   }
 
-  public ExtractionException(String message) {
+  ExtractionException(String message) {
     super(message);
   }
 }
