@@ -2,7 +2,6 @@ package com.morgan.scraper.scraper;
 
 import com.morgan.scraper.extractor.productpage.JsoupProductPageExtractor;
 import com.morgan.scraper.extractor.rootpage.RootPageExtractor;
-import com.morgan.scraper.extractor.traverser.JsoupTraverser;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,7 +23,6 @@ public class ScraperServiceImpl implements ScraperService {
     return rootPageExtractor
         .getProductPageUrls()
         .stream()
-        .map(p -> new JsoupTraverser(p.toString()))
         .map(JsoupProductPageExtractor::new)
         .map(
             e -> {

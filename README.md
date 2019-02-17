@@ -24,7 +24,7 @@ cd target
 jar -jar scraper-0.0.1-SNAPSHOT.jar
 ```
 
-Note for a windows environment please using the `mvnw.cmd` script instead of the `mvnw` shell script. This has not been tested.
+Note for a windows environment use the `mvnw.cmd` script instead of the `mvnw` shell script. This has not been tested.
 
 ## Dependencies
 
@@ -32,10 +32,6 @@ Note for a windows environment please using the `mvnw.cmd` script instead of the
 
  * gson 2.8.2
  * jsoup 1.11.3
-
-### Testing
-
- * mockito 1.9.5
 
 ### Plugins
 

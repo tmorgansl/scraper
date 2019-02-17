@@ -1,29 +1,30 @@
 package com.morgan.scraper.extractor.rootpage;
 
 import com.morgan.scraper.extractor.ExtractionException;
-import com.morgan.scraper.extractor.Extractor;
-import com.morgan.scraper.extractor.traverser.Traverser;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class JsoupRootPageExtractor extends Extractor implements RootPageExtractor {
+public class JsoupRootPageExtractor implements RootPageExtractor {
+
+  private final Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
   private final URL url;
-
-  static final List<String> rootTraversalPath = Arrays.asList(".productNameAndPromotions", "a");
+  private final Document rootDocument;
 
   @Autowired
-  JsoupRootPageExtractor(Traverser traverser, @Value("${sainsburys.url}") String baseURL) {
-    super(traverser);
+  JsoupRootPageExtractor(Document rootDocument, @Value("${sainsburys.url}") String baseURL) {
+    this.rootDocument = rootDocument;
     try {
       this.url = new URL(baseURL);
     } catch (MalformedURLException e) {
@@ -35,7 +36,7 @@ public class JsoupRootPageExtractor extends Extractor implements RootPageExtract
 
   @Override
   public List<URL> getProductPageUrls() {
-    final Elements elements = traverser.getElements(rootTraversalPath);
+    final Elements elements = rootDocument.select(".productNameAndPromotions").select("a");
     List<URL> urls = new ArrayList<>();
     for (Element element : elements) {
       try {

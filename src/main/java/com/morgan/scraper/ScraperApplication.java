@@ -2,13 +2,14 @@ package com.morgan.scraper;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.morgan.scraper.extractor.traverser.JsoupTraverser;
-import com.morgan.scraper.extractor.traverser.Traverser;
 import com.morgan.scraper.scraper.ScrapedProduct;
 import com.morgan.scraper.scraper.ScraperService;
 import com.morgan.scraper.transformer.Output;
 import com.morgan.scraper.transformer.OutputTransformer;
+import java.io.IOException;
 import java.util.List;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.Banner;
@@ -25,18 +26,15 @@ public class ScraperApplication implements CommandLineRunner {
   @Autowired private OutputTransformer outputTransformer;
 
   @Bean
-  public Traverser getRootTraverser(@Value("${sainsburys.url}") String baseURL) {
-    return new JsoupTraverser(baseURL);
+  public Document getRootDocument(@Value("${sainsburys.url}") String baseURL) throws IOException {
+    return Jsoup.connect(baseURL).get();
   }
 
   @Override
   public void run(String... args) {
-
     final Gson gson = new GsonBuilder().setPrettyPrinting().disableHtmlEscaping().create();
-
-    List<ScrapedProduct> scrapedProductList = scraperService.getScrapedProductList();
-    Output output = outputTransformer.getOutput(scrapedProductList);
-
+    final List<ScrapedProduct> scrapedProductList = scraperService.getScrapedProductList();
+    final Output output = outputTransformer.getOutput(scrapedProductList);
     System.out.print(gson.toJson(output));
   }
 

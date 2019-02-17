@@ -2,71 +2,52 @@ package com.morgan.scraper.extractor.productpage;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.mockito.Mockito.when;
 
 import com.morgan.scraper.extractor.ExtractionException;
-import com.morgan.scraper.extractor.traverser.Traverser;
 import java.math.BigDecimal;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class JsoupProductPageExtractorTest {
-  private static Traverser traverser;
-  private static JsoupProductPageExtractor jsoupProductPageExtractor;
-
-  @Before
-  public void init() {
-    traverser = Mockito.mock(Traverser.class);
-    jsoupProductPageExtractor = new JsoupProductPageExtractor(traverser);
-  }
 
   @Test
   public void testProductTitleExtractedProperly() {
-    final String html = "<body><div>mock product title</div></body>";
+    final String html =
+        "<body><div class='productTitleDescriptionContainer'><h1>mock product title</h1></div></body>";
+    final ProductPageExtractor productPageExtractor =
+        new JsoupProductPageExtractor(Jsoup.parse(html));
 
-    final Elements mockElements = buildMockElements(html);
-
-    when(traverser.getElements(JsoupProductPageExtractor.titleTraversalPath))
-        .thenReturn(mockElements);
-
-    final String title = jsoupProductPageExtractor.getTitle();
+    final String title = productPageExtractor.getTitle();
 
     final String expectedTitle = "mock product title";
-
     assertEquals(expectedTitle, title);
   }
 
   @Test(expected = ExtractionException.class)
   public void testProductMultipleTitlesThrowsExtractionException() {
-    final String html = "<body><div>mock product title</div><div>second mock title</div></body>";
+    final String html =
+        "<body><div class='productTitleDescriptionContainer'><h1>mock product title<h1><h1>second mock title</h1></div></body>";
 
-    final Elements mockElements = buildMockElements(html);
+    final ProductPageExtractor productPageExtractor =
+        new JsoupProductPageExtractor(Jsoup.parse(html));
 
-    when(traverser.getElements(JsoupProductPageExtractor.titleTraversalPath))
-        .thenReturn(mockElements);
-
-    jsoupProductPageExtractor.getTitle();
+    productPageExtractor.getTitle();
   }
 
   @Test
   public void testGetPricePerUnitExtractedProperly() {
-    final String html = "<body><div>£1.23</div></body>";
+    final String html =
+        "<body><div class='productSummary'><div><div class='pricePerUnit'>£1.23</div></div></div></body>";
 
-    final Elements mockElements = buildMockElements(html);
+    final ProductPageExtractor productPageExtractor =
+        new JsoupProductPageExtractor(Jsoup.parse(html));
 
-    when(traverser.getElements(JsoupProductPageExtractor.priceTraversalPath))
-        .thenReturn(mockElements);
-
-    final BigDecimal price = jsoupProductPageExtractor.getPricePerUnit();
+    final BigDecimal price = productPageExtractor.getPricePerUnit();
 
     final BigDecimal expectedPrice = new BigDecimal("1.23");
     assertEquals(expectedPrice, price);
@@ -74,14 +55,13 @@ public class JsoupProductPageExtractorTest {
 
   @Test(expected = ExtractionException.class)
   public void testProductMultiplePricesThrowsExtractionException() {
-    final String html = "<body><div>£1.23</div><div>£2.34</div></body>";
+    final String html =
+        "<body><div class='productSummary'><div><div class='pricePerUnit'>£1.23</div><div class='pricePerUnit'>£2.34</div></div></div></body>";
 
-    final Elements mockElements = buildMockElements(html);
+    final ProductPageExtractor productPageExtractor =
+        new JsoupProductPageExtractor(Jsoup.parse(html));
 
-    when(traverser.getElements(JsoupProductPageExtractor.priceTraversalPath))
-        .thenReturn(mockElements);
-
-    jsoupProductPageExtractor.getPricePerUnit();
+    productPageExtractor.getPricePerUnit();
   }
 
   @Test
@@ -94,13 +74,10 @@ public class JsoupProductPageExtractorTest {
             + "</div>"
             + "</body>";
 
-    final Elements mockElements = buildMockElements(html);
-    final Elements inputElements = mockElements.select(".description");
+    final ProductPageExtractor productPageExtractor =
+        new JsoupProductPageExtractor(Jsoup.parse(html));
 
-    when(traverser.getElements(JsoupProductPageExtractor.descriptionTraversalPath))
-        .thenReturn(inputElements);
-
-    final String description = jsoupProductPageExtractor.getDescription();
+    final String description = productPageExtractor.getDescription();
 
     final String expectedDescription = "first line";
 
@@ -118,32 +95,20 @@ public class JsoupProductPageExtractorTest {
             + "</div>"
             + "</body>";
 
-    final Elements mockElements = buildMockElements(html);
-    final Elements inputElements = mockElements.select(".description");
+    final ProductPageExtractor productPageExtractor =
+        new JsoupProductPageExtractor(Jsoup.parse(html));
 
-    when(traverser.getElements(JsoupProductPageExtractor.descriptionTraversalPath))
-        .thenReturn(inputElements);
-
-    jsoupProductPageExtractor.getDescription();
+    productPageExtractor.getDescription();
   }
 
   @Test
   public void testGetKcalByFirstPath() {
-    final String html =
-        "<body>"
-            + "<div>"
-            + "<h3 class='energy'>Energy</h3>"
-            + "<div>123</div>"
-            + "</div>"
-            + "</body>";
+    final String html = "<body><div><table><th>Energy kcal</th><th>123</th></table></div></body>";
 
-    final Elements mockElements = buildMockElements(html);
-    final Elements inputElements = mockElements.select(".energy");
+    final ProductPageExtractor productPageExtractor =
+        new JsoupProductPageExtractor(Jsoup.parse(html));
 
-    when(traverser.getElements(JsoupProductPageExtractor.kcalPer100gFirstTraversalPath))
-        .thenReturn(inputElements);
-
-    final Integer kcalPer100g = jsoupProductPageExtractor.getKcalPer100g();
+    final Integer kcalPer100g = productPageExtractor.getKcalPer100g();
 
     assertEquals(Integer.valueOf(123), kcalPer100g);
   }
@@ -152,50 +117,38 @@ public class JsoupProductPageExtractorTest {
   public void testGetKcalBySecondPath() {
     final String html =
         "<body>"
-            + "<div>"
-            + "<h3 class='energy'>Energy</h3>"
-            + "</div>"
-            + "<table>"
-            + "<tr class='tableRow0'>"
-            + "<td>123kcal</td><td>345kcal</td>"
-            + "</tr>"
+            + " <table class='nutritionTable'>"
+            + "<thead> "
+            + "<tr class='tableTitleRow'>"
+            + "<th scope='col'></th><th scope='col'>Per 100g&nbsp;</th><th scope='col'>% based on RI for Average Adult</th> "
+            + "</tr> "
+            + "</thead>"
+            + "<tr class='tableRow1'>"
+            + "<th scope='row' class='rowHeader' rowspan='2'>Energy</th><td class='tableRow1'>133kJ</td><td class='tableRow1'>-</td>"
+            + "</tr> "
+            + "<tr class='tableRow0'> "
+            + "<td class='tableRow0'>32kcal</td><td class='tableRow0'>2%</td>"
+            + "</tr> "
             + "</table>"
             + "</body>";
 
-    final Elements mockElements = buildMockElements(html);
-    final Elements inputElementsFirst = mockElements.select(".empty");
-    final Elements inputElementsSecond = mockElements.select(".energy");
+    final ProductPageExtractor productPageExtractor =
+        new JsoupProductPageExtractor(Jsoup.parse(html));
 
-    when(traverser.getElements(JsoupProductPageExtractor.kcalPer100gFirstTraversalPath))
-        .thenReturn(inputElementsFirst);
-    when(traverser.getElements(JsoupProductPageExtractor.kcalPer100gSecondTraversalPath))
-        .thenReturn(inputElementsSecond);
+    final Integer kcalPer100g = productPageExtractor.getKcalPer100g();
 
-    final Integer kcalPer100g = jsoupProductPageExtractor.getKcalPer100g();
-
-    assertEquals(Integer.valueOf(123), kcalPer100g);
+    assertEquals(Integer.valueOf(32), kcalPer100g);
   }
 
   @Test
   public void testGetKcalNoHeadersFoundReturnsNull() {
-    final String html = "<body>" + "<div></div>" + "</body>";
+    final String html = "<body><div></div></body>";
 
-    final Elements mockElements = buildMockElements(html);
+    final ProductPageExtractor productPageExtractor =
+        new JsoupProductPageExtractor(Jsoup.parse(html));
 
-    final Elements inputElements = mockElements.select(".empty");
-
-    when(traverser.getElements(JsoupProductPageExtractor.kcalPer100gFirstTraversalPath))
-        .thenReturn(inputElements);
-    when(traverser.getElements(JsoupProductPageExtractor.kcalPer100gSecondTraversalPath))
-        .thenReturn(inputElements);
-
-    final Integer kcalPer100g = jsoupProductPageExtractor.getKcalPer100g();
+    final Integer kcalPer100g = productPageExtractor.getKcalPer100g();
 
     assertNull(kcalPer100g);
-  }
-
-  private Elements buildMockElements(final String html) {
-    Document document = Jsoup.parse(html);
-    return document.body().children();
   }
 }

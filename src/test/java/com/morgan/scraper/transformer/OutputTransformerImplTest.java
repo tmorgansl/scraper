@@ -1,12 +1,8 @@
-package com.morgan.scraper.extractor.transformer;
+package com.morgan.scraper.transformer;
 
 import static junit.framework.TestCase.assertEquals;
 
 import com.morgan.scraper.scraper.ScrapedProduct;
-import com.morgan.scraper.transformer.Output;
-import com.morgan.scraper.transformer.OutputTransformerImpl;
-import com.morgan.scraper.transformer.ProductOutput;
-import com.morgan.scraper.transformer.TotalOutput;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
