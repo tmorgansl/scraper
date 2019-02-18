@@ -26,6 +26,14 @@ jar -jar scraper-0.0.1-SNAPSHOT.jar
 
 Note for a windows environment use the `mvnw.cmd` script instead of the `mvnw` shell script. This has not been tested.
 
+## Tests
+
+A basic set of unit tests can be ran using the maven wrapper:-
+
+```
+./mvnw test
+```
+
 ## Dependencies
 
 ### Runtime
