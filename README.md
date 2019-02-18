@@ -38,6 +38,12 @@ Note for a windows environment use the `mvnw.cmd` script instead of the `mvnw` s
  * spotbugs-maven-plugin 3.1.10
  * fmt-maven-plugin 2.4.0
  * exec-maven-plugin 1.6.0
+ 
+## Known issues and future work
+
+* The extractor logic has been designed to be flexible with changes to positioning of DOM elements within the page (e.g. if a whole table is moved). However, it is brittle to changes to the internal structure of the DOM elements it is looking for (e.g. if columns are moved around looking for `kcal_per_100g`). This could be resolved by being more creative with the css queries and also checking for `null` values to avoid NPEs.
+* Add integration tests.
+* Add a dockerfile so that users do not require a functioning java install.
 
 ## License
 
